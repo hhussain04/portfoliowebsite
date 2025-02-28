@@ -18,7 +18,7 @@ export function Navbar() {
   }, []);
 
  useEffect(() => {
-    if (mounted && clickCount === 5) {
+    if (mounted && clickCount === 1) {
       router.push('/minigame');
     }
   }, [clickCount, router, mounted]);

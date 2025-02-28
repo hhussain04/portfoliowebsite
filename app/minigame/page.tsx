@@ -1,4 +1,3 @@
-// app/minigame/page.tsx
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
@@ -8,15 +7,17 @@ import { Card } from "@/components/ui/card";
 import Image from "next/image";
 import { Play, Pause, RotateCcw } from "lucide-react";
 
+// Adjusted constants for better gameplay
 const GAME_WIDTH = 800;
 const GAME_HEIGHT = 400;
-const DINO_WIDTH = 50;
-const DINO_HEIGHT = 50;
-const OBSTACLE_WIDTH = 30;
-const OBSTACLE_HEIGHT = 50;
-const GRAVITY = 0.8;
-const JUMP_VELOCITY = -15;
-const OBSTACLE_SPEED = 5;
+const PLATFORM_HEIGHT = 20;
+const DINO_WIDTH = 60;    // Reduced size for better collision
+const DINO_HEIGHT = 60;
+const OBSTACLE_WIDTH = 40;
+const OBSTACLE_HEIGHT = 40;
+const GRAVITY = 1;        // Slightly increased for more natural fall
+const JUMP_VELOCITY = -18; // Adjusted for more controlled jump height
+const OBSTACLE_SPEED = 6;
 
 interface Obstacle {
   id: number;
@@ -24,31 +25,37 @@ interface Obstacle {
   type: number;
 }
 
+const DINOSPAWNHEIGHT = GAME_HEIGHT - PLATFORM_HEIGHT - DINO_HEIGHT;
+const OBSTACLESPAWNHEIGHT = GAME_HEIGHT - PLATFORM_HEIGHT - OBSTACLE_HEIGHT;
+
 export default function DinoRunner() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [score, setScore] = useState(0);
-  const [dinoY, setDinoY] = useState(GAME_HEIGHT - DINO_HEIGHT);
+  const [dinoY, setDinoY] = useState(DINOSPAWNHEIGHT);
   const [velocity, setVelocity] = useState(0);
   const [obstacles, setObstacles] = useState<Obstacle[]>([]);
   const gameRef = useRef<HTMLDivElement>(null);
 
-  // Handle jumping
   const jump = () => {
-    if (dinoY === GAME_HEIGHT - DINO_HEIGHT && isPlaying) {
+    if (dinoY >= DINOSPAWNHEIGHT && isPlaying) {
       setVelocity(JUMP_VELOCITY);
     }
   };
 
-  // Game loop
   useEffect(() => {
     if (!isPlaying) return;
 
     const gameLoop = setInterval(() => {
-      // Update dino position
+      // Physics updates
       setVelocity((v) => v + GRAVITY);
-      setDinoY((y) => {
-        const newY = y + velocity;
-        return Math.min(GAME_HEIGHT - DINO_HEIGHT, Math.max(0, newY));
+      setDinoY((prevY) => {
+        const newY = prevY + velocity;
+        // Better ground collision
+        if (newY >= DINOSPAWNHEIGHT) {
+          setVelocity(0);
+          return DINOSPAWNHEIGHT;
+        }
+        return Math.max(0, newY);
       });
 
       // Update obstacles
@@ -61,8 +68,8 @@ export default function DinoRunner() {
           .filter((ob) => ob.x > -OBSTACLE_WIDTH)
       );
 
-      // Add new obstacle
-      if (Math.random() < 0.01) {
+      // Spawn obstacles less frequently
+      if (Math.random() < 0.008 && obstacles.length < 3) {
         setObstacles((obs) => [
           ...obs,
           {
@@ -76,18 +83,23 @@ export default function DinoRunner() {
       // Update score
       setScore((s) => s + 1);
 
-      // Collision detection
+      // Improved collision detection
+      const dinoLeft = 20;  // Added padding from left edge
+      const dinoRight = dinoLeft + DINO_WIDTH - 10;  // Reduced hitbox
+      const dinoTop = dinoY + 10;                    // Reduced hitbox
+      const dinoBottom = dinoY + DINO_HEIGHT - 10;
+
       obstacles.forEach((ob) => {
-        const dinoRight = DINO_WIDTH;
-        const dinoBottom = dinoY + DINO_HEIGHT;
-        const obRight = ob.x + OBSTACLE_WIDTH;
-        const obBottom = GAME_HEIGHT;
+        const obLeft = ob.x + 5;                    // Added padding
+        const obRight = ob.x + OBSTACLE_WIDTH - 5;
+        const obTop = OBSTACLESPAWNHEIGHT + 5;
+        const obBottom = OBSTACLESPAWNHEIGHT + OBSTACLE_HEIGHT - 5;
 
         if (
-          dinoRight > ob.x &&
-          0 < obRight &&
-          dinoBottom > GAME_HEIGHT - OBSTACLE_HEIGHT &&
-          dinoY < obBottom
+          dinoRight > obLeft &&
+          dinoLeft < obRight &&
+          dinoBottom > obTop &&
+          dinoTop < obBottom
         ) {
           setIsPlaying(false);
         }
@@ -97,10 +109,10 @@ export default function DinoRunner() {
     return () => clearInterval(gameLoop);
   }, [isPlaying, dinoY, velocity, obstacles]);
 
-  // Keyboard controls
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.code === "Space") {
+        e.preventDefault(); // Prevent page scrolling
         jump();
       }
     };
@@ -108,10 +120,9 @@ export default function DinoRunner() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [dinoY, isPlaying]);
 
-  // Reset game
   const resetGame = () => {
     setScore(0);
-    setDinoY(GAME_HEIGHT - DINO_HEIGHT);
+    setDinoY(DINOSPAWNHEIGHT);
     setVelocity(0);
     setObstacles([]);
     setIsPlaying(true);
@@ -121,7 +132,6 @@ export default function DinoRunner() {
     <div className="min-h-screen flex items-center justify-center pt-24 pb-8">
       <Card className="bg-black/40 backdrop-blur-md border-[#8A2BE2]/20 p-6 shadow-lg shadow-[#8A2BE2]/5 max-w-4xl w-full">
         <div className="space-y-6">
-          {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -135,18 +145,30 @@ export default function DinoRunner() {
             </div>
           </motion.div>
 
-          {/* Game Area */}
           <div
             ref={gameRef}
             className="relative bg-[#0A0A0A] rounded-lg overflow-hidden border border-[#8A2BE2]/30"
             style={{ width: GAME_WIDTH, height: GAME_HEIGHT }}
             onClick={jump}
           >
+            {/* Ground */}
+            <div
+              className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-[#8A2BE2] to-[#6A0DAD]"
+              style={{ height: PLATFORM_HEIGHT }}
+            >
+              <div className="w-full h-1 bg-[#9370DB]" />
+            </div>
+
             {/* Dino */}
             <motion.div
               animate={{ y: dinoY }}
               transition={{ ease: "linear", duration: 0 }}
-              className="absolute bottom-0 left-0"
+              className="absolute"
+              style={{ 
+                left: 20, // Fixed position from left
+                width: DINO_WIDTH,
+                height: DINO_HEIGHT,
+              }}
             >
               <Image
                 src="/minigame/dino.png"
@@ -154,6 +176,7 @@ export default function DinoRunner() {
                 width={DINO_WIDTH}
                 height={DINO_HEIGHT}
                 className="object-contain"
+                style={{ filter: "hue-rotate(270deg)" }}
               />
             </motion.div>
 
@@ -166,8 +189,13 @@ export default function DinoRunner() {
                   animate={{ x: ob.x }}
                   exit={{ x: -OBSTACLE_WIDTH }}
                   transition={{ ease: "linear", duration: 0 }}
-                  className="absolute bottom-0"
-                  style={{ left: ob.x }}
+                  className="absolute"
+                  style={{ 
+                    left: ob.x,
+                    bottom: OBSTACLESPAWNHEIGHT,
+                    width: OBSTACLE_WIDTH,
+                    height: OBSTACLE_HEIGHT
+                  }}
                 >
                   <Image
                     src={`/minigame/obstacle${ob.type}.png`}
@@ -209,7 +237,6 @@ export default function DinoRunner() {
             </AnimatePresence>
           </div>
 
-          {/* Controls */}
           <div className="flex justify-between items-center">
             <div className="text-muted-foreground">
               Press <span className="text-[#8A2BE2] font-mono">SPACE</span> or
