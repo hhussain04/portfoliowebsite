@@ -41,6 +41,16 @@ export const metadata: Metadata = {
     title: 'Humza Hussain - Software Developer',
     description: 'Professional portfolio of Humza Hussain, a passionate software developer specializing in modern web technologies.',
   },
+  icons: {
+    icon: [
+      { url: '/favicon.ico' },
+      { url: '/icon.png', type: 'image/png' },
+    ],
+    shortcut: ['/favicon.ico'],
+    apple: [
+      { url: '/apple-icon.png' },
+    ],
+  },
 };
 
 export default function RootLayout({

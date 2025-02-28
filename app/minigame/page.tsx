@@ -1,76 +1,105 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import Image from "next/image";
 import { Play, Pause, RotateCcw } from "lucide-react";
 
-// Adjusted constants for better gameplay
-const GAME_WIDTH = 800;
-const GAME_HEIGHT = 400;
-const PLATFORM_HEIGHT = 20;
-const DINO_WIDTH = 60;    // Reduced size for better collision
-const DINO_HEIGHT = 60;
-const OBSTACLE_WIDTH = 40;
-const OBSTACLE_HEIGHT = 40;
-const GRAVITY = 1;        // Slightly increased for more natural fall
-const JUMP_VELOCITY = -18; // Adjusted for more controlled jump height
-const OBSTACLE_SPEED = 6;
+// Vector class with TypeScript types
+class Vector {
+  x: number;
+  y: number;
 
+  constructor(x: number, y: number) {
+    this.x = x;
+    this.y = y;
+  }
+
+  add(other: Vector): Vector {
+    return new Vector(this.x + other.x, this.y + other.y);
+  }
+
+  multiply(scalar: number): Vector {
+    return new Vector(this.x * scalar, this.y * scalar);
+  }
+}
+
+// Adjusted constants for better gameplay
+const GAME_WIDTH: number = 800;
+const GAME_HEIGHT: number = 400;
+const PLATFORM_HEIGHT: number = 20;
+const DINO_WIDTH: number = 60;
+const DINO_HEIGHT: number = 60;
+const OBSTACLE_WIDTH: number = 40;
+const OBSTACLE_HEIGHT: number = 40;
+const GRAVITY: number = 1;
+const JUMP_VELOCITY: number = -18;
+const DOUBLE_JUMP_VELOCITY: number = -15;
+const OBSTACLE_SPEED: number = 6;
+
+const DINOSPAWNHEIGHT: number = GAME_HEIGHT - PLATFORM_HEIGHT - DINO_HEIGHT;
+const OBSTACLESPAWNHEIGHT: number = GAME_HEIGHT - PLATFORM_HEIGHT - OBSTACLE_HEIGHT;
+
+// Define Obstacle interface
 interface Obstacle {
   id: number;
   x: number;
   type: number;
 }
 
-const DINOSPAWNHEIGHT = GAME_HEIGHT - PLATFORM_HEIGHT - DINO_HEIGHT;
-const OBSTACLESPAWNHEIGHT = GAME_HEIGHT - PLATFORM_HEIGHT - OBSTACLE_HEIGHT;
-
-export default function DinoRunner() {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [score, setScore] = useState(0);
-  const [dinoY, setDinoY] = useState(DINOSPAWNHEIGHT);
-  const [velocity, setVelocity] = useState(0);
+export default function DinoRunner(): JSX.Element {
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [score, setScore] = useState<number>(0);
+  const [position, setPosition] = useState<Vector>(new Vector(20, DINOSPAWNHEIGHT));
+  const [velocity, setVelocity] = useState<Vector>(new Vector(0, 0));
   const [obstacles, setObstacles] = useState<Obstacle[]>([]);
+  const [hasDoubleJumped, setHasDoubleJumped] = useState<boolean>(false);
   const gameRef = useRef<HTMLDivElement>(null);
 
-  const jump = () => {
-    if (dinoY >= DINOSPAWNHEIGHT && isPlaying) {
-      setVelocity(JUMP_VELOCITY);
+  // Removed gravity initialization from here
+
+  const jump = useCallback((): void => {
+    if (position.y >= DINOSPAWNHEIGHT && isPlaying) {
+      setVelocity(new Vector(0, JUMP_VELOCITY));
+      setHasDoubleJumped(false);
+    } else if (!hasDoubleJumped && isPlaying) {
+      setVelocity(new Vector(velocity.x, DOUBLE_JUMP_VELOCITY));
+      setHasDoubleJumped(true);
     }
-  };
+  }, [position.y, isPlaying, hasDoubleJumped, velocity.x]);
 
   useEffect(() => {
     if (!isPlaying) return;
 
+    const gravity: Vector = new Vector(0, GRAVITY);
+
     const gameLoop = setInterval(() => {
       // Physics updates
-      setVelocity((v) => v + GRAVITY);
-      setDinoY((prevY) => {
-        const newY = prevY + velocity;
-        // Better ground collision
-        if (newY >= DINOSPAWNHEIGHT) {
-          setVelocity(0);
-          return DINOSPAWNHEIGHT;
+      setVelocity((prevVelocity: Vector) => prevVelocity.add(gravity));
+      setPosition((prevPosition: Vector) => {
+        const newPosition: Vector = prevPosition.add(velocity);
+        if (newPosition.y >= DINOSPAWNHEIGHT) {
+          setVelocity(new Vector(0, 0));
+          return new Vector(prevPosition.x, DINOSPAWNHEIGHT);
         }
-        return Math.max(0, newY);
+        return new Vector(prevPosition.x, Math.max(0, newPosition.y));
       });
 
       // Update obstacles
-      setObstacles((obs) =>
+      setObstacles((obs: Obstacle[]) =>
         obs
-          .map((ob) => ({
+          .map((ob: Obstacle) => ({
             ...ob,
             x: ob.x - OBSTACLE_SPEED,
           }))
-          .filter((ob) => ob.x > -OBSTACLE_WIDTH)
+          .filter((ob: Obstacle) => ob.x > -OBSTACLE_WIDTH)
       );
 
       // Spawn obstacles less frequently
       if (Math.random() < 0.008 && obstacles.length < 3) {
-        setObstacles((obs) => [
+        setObstacles((obs: Obstacle[]) => [
           ...obs,
           {
             id: Date.now(),
@@ -81,19 +110,19 @@ export default function DinoRunner() {
       }
 
       // Update score
-      setScore((s) => s + 1);
+      setScore((s: number) => s + 1);
 
       // Improved collision detection
-      const dinoLeft = 20;  // Added padding from left edge
-      const dinoRight = dinoLeft + DINO_WIDTH - 10;  // Reduced hitbox
-      const dinoTop = dinoY + 10;                    // Reduced hitbox
-      const dinoBottom = dinoY + DINO_HEIGHT - 10;
+      const dinoLeft: number = position.x;
+      const dinoRight: number = position.x + DINO_WIDTH - 10;
+      const dinoTop: number = position.y + 10;
+      const dinoBottom: number = position.y + DINO_HEIGHT - 10;
 
-      obstacles.forEach((ob) => {
-        const obLeft = ob.x + 5;                    // Added padding
-        const obRight = ob.x + OBSTACLE_WIDTH - 5;
-        const obTop = OBSTACLESPAWNHEIGHT + 5;
-        const obBottom = OBSTACLESPAWNHEIGHT + OBSTACLE_HEIGHT - 5;
+      obstacles.forEach((ob: Obstacle) => {
+        const obLeft: number = ob.x + 5;
+        const obRight: number = ob.x + OBSTACLE_WIDTH - 5;
+        const obTop: number = OBSTACLESPAWNHEIGHT + 5;
+        const obBottom: number = OBSTACLESPAWNHEIGHT + OBSTACLE_HEIGHT - 5;
 
         if (
           dinoRight > obLeft &&
@@ -107,24 +136,25 @@ export default function DinoRunner() {
     }, 1000 / 60); // 60 FPS
 
     return () => clearInterval(gameLoop);
-  }, [isPlaying, dinoY, velocity, obstacles]);
+  }, [isPlaying, position, velocity, obstacles, hasDoubleJumped]);
 
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
+    const handleKeyDown = (e: KeyboardEvent): void => {
       if (e.code === "Space") {
-        e.preventDefault(); // Prevent page scrolling
+        e.preventDefault();
         jump();
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [dinoY, isPlaying]);
+  }, [position, isPlaying, hasDoubleJumped, jump]);
 
-  const resetGame = () => {
+  const resetGame = (): void => {
     setScore(0);
-    setDinoY(DINOSPAWNHEIGHT);
-    setVelocity(0);
+    setPosition(new Vector(20, DINOSPAWNHEIGHT));
+    setVelocity(new Vector(0, 0));
     setObstacles([]);
+    setHasDoubleJumped(false);
     setIsPlaying(true);
   };
 
@@ -161,11 +191,11 @@ export default function DinoRunner() {
 
             {/* Dino */}
             <motion.div
-              animate={{ y: dinoY }}
+              animate={{ y: position.y }}
               transition={{ ease: "linear", duration: 0 }}
               className="absolute"
-              style={{ 
-                left: 20, // Fixed position from left
+              style={{
+                left: position.x,
                 width: DINO_WIDTH,
                 height: DINO_HEIGHT,
               }}
@@ -182,7 +212,7 @@ export default function DinoRunner() {
 
             {/* Obstacles */}
             <AnimatePresence>
-              {obstacles.map((ob) => (
+              {obstacles.map((ob: Obstacle) => (
                 <motion.div
                   key={ob.id}
                   initial={{ x: GAME_WIDTH }}
@@ -190,11 +220,11 @@ export default function DinoRunner() {
                   exit={{ x: -OBSTACLE_WIDTH }}
                   transition={{ ease: "linear", duration: 0 }}
                   className="absolute"
-                  style={{ 
+                  style={{
                     left: ob.x,
                     bottom: OBSTACLESPAWNHEIGHT,
                     width: OBSTACLE_WIDTH,
-                    height: OBSTACLE_HEIGHT
+                    height: OBSTACLE_HEIGHT,
                   }}
                 >
                   <Image

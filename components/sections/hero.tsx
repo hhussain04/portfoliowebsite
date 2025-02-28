@@ -18,7 +18,7 @@ export function HeroSection() {
           className="space-y-6"
         >
           <h1 className="text-4xl md:text-6xl font-bold">
-            Hi, I'm{' '}
+            Hi, I&apos;m{' '}
             <span className="bg-gradient-to-r from-[#8A2BE2] to-[#9370DB] text-transparent bg-clip-text">
               Humza Hussain
             </span>
