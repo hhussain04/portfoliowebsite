@@ -17,12 +17,12 @@ export function Navbar() {
     setMounted(true);
   }, []);
 
-  useEffect(() => {
+ /* useEffect(() => {
     if (mounted && clickCount === 5) {
       router.push('/minigame');
     }
   }, [clickCount, router, mounted]);
-
+*/
   const navItems = [
     { href: '/', label: 'Home' },
     { href: '/about', label: 'About' },
