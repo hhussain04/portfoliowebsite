@@ -19,6 +19,11 @@ async function markdownToHtml(markdown: string) {
   return result.toString();
 }
 
+export const generateStaticParams = async () => {
+  const slugs = blogPosts.map((post) => post.slug);
+  return slugs.map((slug) => ({ params: { slug } }));
+};
+
 export default async function BlogPostPage({ params: { slug } }: Props) {
   const post = blogPosts.find((post) => post.slug === slug);
 
