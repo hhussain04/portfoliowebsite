@@ -64,7 +64,7 @@ export function Navbar() {
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
-      className="fixed top-4 left-0 right-0 z-50 px-4"
+      className="relative top-4 left-0 right-0 z-50 px-4"
     >
       <div className="max-w-5xl mx-auto">
         <div className="flex items-center justify-between bg-black backdrop-blur-md rounded-2xl border border-[#8A2BE2]/20 p-4">
