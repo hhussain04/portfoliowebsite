@@ -121,17 +121,20 @@ export default function AboutPage() {
         transition={{ duration: 0.5 }}
         className="text-center space-y-6"
       >
-        <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-[#8A2BE2] to-[#9370DB] bg-clip-text text-transparent underline">
+        <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-[#8A2BE2] to-[#9370DB] bg-clip-text text-transparent">
           About Me
         </h1>
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
           A passionate full-stack developer with 2 years of personal experience 
           with many different technologies.
         </p>
-        <Button className="gap-2">
+        <a className="gap-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm 
+        text-white bg-purple-600 hover:bg-purple-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 
+        transform hover:scale-105 transition-transform duration-200"  
+        href="/about/CV HUMZA.pdf" download>
           <Download className="h-4 w-4" />
-          Download Resume
-        </Button>
+          Download CV
+        </a>
       </motion.section>
 
       {/* Lunchbox Layout */}

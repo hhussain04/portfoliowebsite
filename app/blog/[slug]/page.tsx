@@ -1,3 +1,4 @@
+// app/blog/[slug]/page.tsx
 import { blogPosts } from '@/lib/blogData';
 import { notFound } from 'next/navigation';
 import { format } from 'date-fns';
@@ -20,18 +21,31 @@ async function markdownToHtml(markdown: string) {
 }
 
 export const generateStaticParams = async () => {
-  const slugs = blogPosts.map((post) => post.slug);
-  return slugs.map((slug) => ({ params: { slug } }));
+  console.log("Blog Posts in generateStaticParams:", blogPosts); // Add this line
+
+  const params = blogPosts.map((post) => {
+      console.log("Processing slug:", post.slug); // Add this line
+      return { params: { slug: post.slug } };
+  });
+
+  console.log("Generated params:", params); // Add this line
+
+  return params;
 };
 
 export default async function BlogPostPage({ params: { slug } }: Props) {
-  const post = blogPosts.find((post) => post.slug === slug);
+  let post;
+  try {
+      post = blogPosts.find((post) => post.slug === slug);
 
-  if (!post) {
-    notFound(); // Return a 404 if the post doesn't exist
+      if (!post) {
+          notFound(); // Return a 404 if the post doesn't exist - ENSURE NOTFOUND() DIRECTLY
+      }
+  } catch (error) {
+      notFound(); // Return a 404 if the post doesn't exist
   }
 
-  const contentHtml = await markdownToHtml(post.content || '');
+const contentHtml = await markdownToHtml(post.content || '');
 
   return (
     <article className="pt-24 max-w-4xl mx-auto space-y-6">

@@ -7,8 +7,9 @@ const nextConfig = {
       mangle: false
     }
   },
-  output: 'export',
-  images: { unoptimized: true }
+  output: 'next export',
+  images: { unoptimized: true },
+  cache: false, // Add this line temporarily
 };
 
 module.exports = nextConfig;
