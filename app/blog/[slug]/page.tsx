@@ -6,7 +6,9 @@ import { Calendar } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 import { remark } from 'remark';
 import html from 'remark-html';
-import rehypeStringify from "rehype-stringify";
+import rehypeStringify from 'rehype-stringify';
+import remarkParse from 'remark-parse';
+import remarkRehype from 'remark-rehype';
 
 interface Props {
   params: { slug: string };
@@ -14,6 +16,8 @@ interface Props {
 
 async function markdownToHtml(markdown: string) {
   const result = await remark()
+    .use(remarkParse)
+    .use(remarkRehype)
     .use(html)
     .use(rehypeStringify)
     .process(markdown);
