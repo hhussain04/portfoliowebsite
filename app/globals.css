@@ -118,3 +118,64 @@
 .language-filter.active {
   @apply bg-[#8A2BE2] text-white;
 }
+
+/* Custom scrollbar styling */
+.scrollbar-thin {
+  scrollbar-width: thin;
+}
+
+.scrollbar-thumb-primary {
+  scrollbar-color: #8A2BE2 hsl(var(--background)); /* Purple thumb, dark background track */
+}
+
+.scrollbar-track-background::-webkit-scrollbar-track {
+  background: hsl(var(--background)); /* Dark background for track */
+}
+
+.scrollbar-thumb-primary::-webkit-scrollbar-thumb {
+  background: #8A2BE2; /* Purple thumb */
+  border-radius: 4px;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.prose {
+  color: hsl(var(--foreground)); /* Light text for dark mode */
+}
+
+.prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
+  color: #FFFFFF; /* White headings */
+}
+
+.prose code {
+  @apply text-pink-400 bg-card px-1 rounded font-mono; /* Pink code, Fira Code font */
+}
+
+.prose pre {
+  @apply bg-card text-foreground p-4 rounded-lg overflow-x-auto font-mono; /* Dark background for pre, Fira Code */
+}
+
+.prose pre code {
+  background: none; /* Remove background from code inside pre */
+  padding: 0; /* Remove padding from code inside pre */
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/Inter.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Fira Code';
+  src: url('/fonts/FiraCode.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+}
+
+/* Prism.js theme for syntax highlighting */
+@import 'prismjs/themes/prism-okaidia.css'; /* Dark theme for code blocks */
