@@ -1,12 +1,11 @@
-// lib/blogData.ts
-
 import { BlogPost } from './types';
+import { generateSlug } from './utils';
 
 export const blogPosts: BlogPost[] = [
   {
-    id: '1', // Changed to string for consistency
+    id: '1',
     title: 'Getting Started with Next.js',
-    slug: 'getting-started-with-nextjs',
+    slug: generateSlug('Next.js Basics'), // Updated to a shorter, cleaner slug
     excerpt: 'A beginner’s guide to building modern web apps with Next.js - from a self-taught developer’s perspective.',
     content: `
       ## Introduction
@@ -49,7 +48,7 @@ export const blogPosts: BlogPost[] = [
   {
     id: '2',
     title: 'Tailwind CSS Tips and Tricks',
-    slug: 'tailwind-css-tips',
+    slug: generateSlug('Tailwind Tips'), // Updated to a shorter, cleaner slug
     excerpt: 'Learn how to make the most of Tailwind CSS in your projects.',
     content: `
       ## Introduction to Tailwind CSS

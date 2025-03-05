@@ -142,20 +142,47 @@
   height: 8px;
 }
 
+/* Enhanced prose styling for blog content */
 .prose {
+  @apply text-foreground leading-relaxed max-w-none;
   color: hsl(var(--foreground)); /* Light text for dark mode */
 }
 
 .prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
+  @apply text-white font-bold mb-4 mt-8;
   color: #FFFFFF; /* White headings */
 }
 
+.prose h1 {
+  @apply text-4xl;
+}
+
+.prose h2 {
+  @apply text-3xl;
+}
+
+.prose h3 {
+  @apply text-2xl;
+}
+
+.prose p {
+  @apply mb-4 text-lg;
+}
+
+.prose ul, .prose ol {
+  @apply list-disc pl-6 mb-4 text-lg;
+}
+
+.prose li {
+  @apply mb-2;
+}
+
 .prose code {
-  @apply text-pink-400 bg-card px-1 rounded font-mono; /* Pink code, Fira Code font */
+  @apply text-pink-400 bg-card px-2 py-1 rounded font-mono text-sm;
 }
 
 .prose pre {
-  @apply bg-card text-foreground p-4 rounded-lg overflow-x-auto font-mono; /* Dark background for pre, Fira Code */
+  @apply bg-card text-foreground p-6 rounded-lg overflow-x-auto font-mono border border-[#8A2BE2]/20 shadow-md shadow-[#8A2BE2]/10;
 }
 
 .prose pre code {
@@ -163,6 +190,7 @@
   padding: 0; /* Remove padding from code inside pre */
 }
 
+/* Fonts */
 @font-face {
   font-family: 'Inter';
   src: url('/fonts/Inter.woff2') format('woff2');
@@ -177,5 +205,22 @@
   font-style: normal;
 }
 
-/* Prism.js theme for syntax highlighting */
-@import 'prismjs/themes/prism-okaidia.css'; /* Dark theme for code blocks */
+/* Prism.js theme for syntax highlighting (already imported, but ensure it’s dark) */
+@import 'prismjs/themes/prism-okaidia.css';
+
+/* Additional blog-specific styling */
+.blog-post {
+  @apply p-6 bg-black/30 backdrop-blur-md rounded-2xl border border-[#8A2BE2]/10 shadow-md shadow-[#8A2BE2]/5;
+}
+
+.blog-header {
+  @apply p-6 bg-black/40 backdrop-blur-md rounded-2xl border border-[#8A2BE2]/20 shadow-lg shadow-[#8A2BE2]/10;
+}
+
+.blog-tags {
+  @apply flex flex-wrap gap-3;
+}
+
+.blog-tag {
+  @apply bg-[#8A2BE2]/10 text-[#8A2BE2] border border-[#8A2BE2]/20 px-3 py-1 text-sm font-medium hover:bg-[#8A2BE2] hover:text-white transition-colors;
+}
