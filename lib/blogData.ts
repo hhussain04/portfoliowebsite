@@ -86,4 +86,51 @@ export const blogPosts: BlogPost[] = [
     tags: ['CSS', 'Tailwind', 'Web Design'],
     author: 'Humza Hussain',
   },
+  {
+    id: '3',
+    title: 'Understanding Python PEP 8 Standards',
+    slug: generateSlug('Python PEP 8'), // Short, clean slug
+    excerpt: 'A practical guide to writing clean, readable Python code with PEP 8 standards.',
+    content: `
+      ## Introduction
+
+      PEP 8 is Python’s official style guide, designed to improve the readability and consistency of Python code. As a self-taught programmer, I’ve found adhering to PEP 8 to be a game-changer for writing clean, professional code that others (and future me) can easily understand. In this post, I’ll break down the key principles of PEP 8 and share practical examples.
+
+      ## Core Guidelines
+
+      Here are some essential PEP 8 rules to follow:
+
+      * **Indentation:** Use 4 spaces per indentation level (no tabs!).
+      * **Line Length:** Limit lines to 79 characters for better readability.
+      * **Naming Conventions:** Use \`snake_case\` for variables and functions, \`CamelCase\` for classes.
+      * **Whitespace:** Add a single space around operators (e.g., \`x = 5\` instead of \`x=5\`) and after commas.
+
+      ## Example Code
+
+      Here’s a quick before-and-after example:
+
+      **Before (Messy Code):**
+      \`\`\`python
+      def calculateTotal(x,y):return x+y
+      myList=[1,2,3]
+      \`\`\`
+
+      **After (PEP 8 Compliant):**
+      \`\`\`python
+      def calculate_total(x, y):
+          return x + y
+
+      my_list = [1, 2, 3]
+      \`\`\`
+
+      The second version is much easier to read, right? Proper spacing, meaningful names, and consistent indentation make a huge difference.
+
+      ## Why PEP 8 Matters
+
+      Following PEP 8 isn’t just about rules—it’s about collaboration and maintainability. When your code is consistent and readable, it’s easier to debug, share with others, or revisit months later. For beginners like me, it’s also a great way to build good habits early on. Stick around for more Python tips in future posts!
+    `,
+    date: '2025-03-01',
+    tags: ['Python', 'PEP 8', 'Programming'],
+    author: 'Humza Hussain',
+  },
 ];
