@@ -197,4 +197,100 @@ my_list = [1, 2, 3]`,
     tags: ['Python', 'PEP 8', 'Programming'],
     author: 'Humza Hussain',
   },
+  {
+    id: '4',
+    title: 'Building Your First Dynamic Page in Next.js',
+    slug: generateSlug('Next.js Dynamic Pages'),
+    excerpt: 'A hands-on guide to creating dynamic pages in Next.js with routing and data fetching - perfect for taking your skills up a notch.',
+    content: {
+      sections: [
+        {
+          heading: { level: 2, text: 'Introduction' },
+          paragraphs: [
+            'So, you’ve got the basics of Next.js under your belt—congrats! In my last post, we set up a project, explored its killer features, and got comfy with the file-based routing system. Now, it’s time to level up and tackle dynamic pages. As a self-taught dev, I found this step exciting but tricky at first—suddenly, you’re not just serving static content but building pages that adapt based on data or URLs. In this guide, I’ll walk you through creating your first dynamic page in Next.js, from setting up routes to fetching data, all with real examples from my own experiments.',
+            'Dynamic pages are where Next.js really flexes its muscles—think blog posts, product pages, or user profiles that change based on an ID or slug. We’ll keep it simple but practical, and by the end, you’ll have a solid starting point to build something cool. Let’s get into it!',
+          ],
+        },
+        {
+          heading: { level: 2, text: 'Setting Up Dynamic Routing' },
+          paragraphs: [
+            'Next.js makes dynamic routing a breeze with its file-based system. Instead of hardcoding every page, you can use square brackets in filenames to create routes that handle variables. Let’s say we’re building a blog (like this one!) where each post has its own page based on an ID.',
+            'In your `pages` directory, create a folder called `posts` and add a file named `[id].js` (or `[id].tsx` if you’re using TypeScript). The `[id]` part tells Next.js this is a dynamic route, and `id` will be the parameter we can grab from the URL. Here’s a basic setup:',
+            'Visit `http://localhost:3000/posts/123`, and you’ll see "Post ID: 123" on the page. The `useRouter` hook from `next/router` lets you access the `id` from the URL. It’s that simple—no extra libraries or config needed. I love how Next.js keeps this intuitive, letting me focus on building rather than wiring up routes.',
+          ],
+          codeBlocks: [
+            {
+              language: 'javascript',
+              code: `// pages/posts/[id].js
+import { useRouter } from 'next/router';
+
+export default function Post() {
+  const router = useRouter();
+  const { id } = router.query;
+
+  return <h1>Post ID: {id}</h1>;
+}`,
+            },
+          ],
+        },
+        {
+          heading: { level: 2, text: 'Fetching Data for Your Page' },
+          paragraphs: [
+            'A dynamic page isn’t much without data, right? Next.js gives you two awesome tools for this: `getStaticProps` and `getServerSideProps`. For static sites (like a blog), `getStaticProps` is my go-to—it fetches data at build time and generates pages ahead of time. Let’s fetch a post based on its ID from a fake API (we’ll simulate it with an array for now).',
+            'Here’s how it looks. Create a `posts` array to mimic our data source, then use `getStaticProps` to pass the right post to the page:',
+            'This setup assumes your post lives at `/posts/1`. The `getStaticPaths` function tells Next.js which IDs to pre-render (here, just "1" and "2"), and `getStaticProps` grabs the matching post. If the ID doesn’t exist, it’ll 404. When I first tried this, I was blown away by how fast the pages loaded—pre-rendered HTML is magic for performance.',
+            'For dynamic data that changes often (like a live feed), swap `getStaticProps` for `getServerSideProps`. It runs on every request instead of at build time—same idea, just tweak the function name and skip `getStaticPaths`.',
+          ],
+          codeBlocks: [
+            {
+              language: 'javascript',
+              code: `// pages/posts/[id].js
+const posts = [
+  { id: '1', title: 'First Post', content: 'This is my first post!' },
+  { id: '2', title: 'Second Post', content: 'Back with more thoughts.' },
+];
+
+export default function Post({ post }) {
+  if (!post) return <h1>Post not found</h1>;
+  return (
+    <div>
+      <h1>{post.title}</h1>
+      <p>{post.content}</p>
+    </div>
+  );
+}
+
+export async function getStaticPaths() {
+  const paths = posts.map((post) => ({
+    params: { id: post.id },
+  }));
+  return { paths, fallback: false };
+}
+
+export async function getStaticProps({ params }) {
+  const post = posts.find((p) => p.id === params.id);
+  return { props: { post: post || null } };
+}`,
+            },
+          ],
+        },
+        {
+          heading: { level: 2, text: 'Making It Real' },
+          paragraphs: [
+            'Our example’s basic, but it’s a foundation you can build on. Swap the `posts` array for a real API call using `fetch` in `getStaticProps`—something like `const res = await fetch(\`https://api.example.com/posts/${params.id}\`)`. I did this for a small project fetching GitHub repo data, and it clicked how flexible Next.js is. You can also add slugs instead of IDs (e.g., `[slug].js`) for SEO-friendly URLs—just adjust your data and `getStaticPaths` accordingly.',
+            'Styling’s up to you—throw in some Tailwind classes (like `className="p-6 max-w-2xl mx-auto"`) or your own CSS. And if you’re deploying, Vercel’s a dream for Next.js apps—just `git push` and it handles the rest. My first dynamic page felt like a win because it was *mine*—no tutorial clone, just something I hacked together and improved over time.',
+          ],
+        },
+        {
+          heading: { level: 2, text: 'What’s Next?' },
+          paragraphs: [
+            'Dynamic pages open up a world of possibilities in Next.js. You’ve got the basics now—routing with `[id]`, pre-rendering with `getStaticProps`, and a taste of how data flows. From here, experiment! Try `getServerSideProps` for real-time data, play with nested routes (like `posts/[id]/comments`), or fetch from a CMS like Sanity or Contentful. I’ll keep this series going with topics like API routes and optimizing performance, so stick with me if you’re hungry to grow your Next.js skills!',
+          ],
+        },
+      ],
+    },
+    date: '2025-03-10',
+    tags: ['Next.js', 'React', 'Dynamic Routing'],
+    author: 'Humza Hussain',
+  },
 ];
